@@ -3,28 +3,29 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const Dishes = require("../models/dishes");
 const dishRouter = express.Router();
+const dishesDataService = require("../services/dishesDataService");
 // The above syntax will declare the dishRouter as an express-router.
 dishRouter.use(bodyParser.json());
 
+dishRouter.route("/").all((req, res, next) => {
+  res.statusCode = 200;
+  res.setHeader("Content-Type", "text/plain");
+  next();
+});
+dishRouter.get("/", (req, res) => {
+  const dishes = dishesDataService();
+  dishes
+    .then((dishes) => {
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).send(dishes);
+    })
+    .catch((err) => {
+      res.status(422).send(err);
+    });
+});
+
 dishRouter
   .route("/")
-  .all((req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    next();
-  })
-  .get((req, res, next) => {
-    Dishes.find({})
-      .then(
-        (dishes) => {
-          res.statusCode = 200;
-          res.setHeader("Content-Type", "application/json");
-          res.json(dishes);
-        },
-        (err) => next(console.log("1", err))
-      )
-      .catch((err) => next(err));
-  })
   .post((req, res, next) => {
     Dishes.create(req.body)
       .then(

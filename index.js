@@ -9,7 +9,6 @@ const connect = mongoose.connect(url);
 const leaderRouter = require("./Routes/leaderRouter");
 const dishRouter = require("./routes/dishRouter");
 const promoRouter = require("./routes/promoRouter");
-// const hostname = "localhost";
 const hostname = process.env.HOSTNAME;
 const app = express();
 
