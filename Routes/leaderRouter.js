@@ -111,7 +111,6 @@ leaderRouter
         (err) => next(err)
       )
       .catch((err) => next(err));
-    console.log("hello");
   });
 
 module.exports = leaderRouter;
