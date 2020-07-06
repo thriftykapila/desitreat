@@ -1,16 +1,19 @@
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const Dishes = require("./models/dishes");
-const url = "mongodb://localhost:27017/conFusion";
+const url = process.env.URL;
 const connect = mongoose.connect(url);
 const leaderRouter = require("./Routes/leaderRouter");
 const dishRouter = require("./routes/dishRouter");
 const promoRouter = require("./routes/promoRouter");
-const hostname = "localhost";
-const port = 3000;
+// const hostname = "localhost";
+const hostname = process.env.HOSTNAME;
 const app = express();
+
+const port = process.env.PORT;
 
 mongoose.Promise = require("bluebird");
 
@@ -20,7 +23,7 @@ app.use(bodyParser.json());
 
 connect.then(
   (db) => {
-    console.log("Connected correctly to server");
+    console.log(`Connected correctly to server at port ${port}`);
   },
   (err) => {
     console.log(err);
