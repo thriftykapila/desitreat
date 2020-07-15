@@ -19,7 +19,7 @@ dishRouter
     res.setHeader("Content-Type", "text/plain");
     next();
   })
-  .get("/", (req, res) => {
+  .get((req, res) => {
     console.log(req);
     const dishes = dishesData();
     dishes
@@ -31,7 +31,7 @@ dishRouter
         res.status(422).send(err);
       });
   })
-  .post("/", (req, res) => {
+  .post((req, res) => {
     const dish = createDishes();
     dish
       .then((dish) => {
@@ -40,10 +40,10 @@ dishRouter
       })
       .catch((err) => res.status(422).send(err));
   })
-  .put("/", (req, res) => {
+  .put((req, res) => {
     res.status(403).send("PUT operation not supported on /dishes");
   })
-  .delete("/", async (req, res, next) => {
+  .delete(async (req, res, next) => {
     try {
       const response = await deleteDishes();
       res.setHeader("Content-Type", "application/json");
