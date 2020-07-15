@@ -2,8 +2,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const Dishes = require("../models/dishes");
+const {
+  dishesData,
+  createDishes,
+  deleteDishes,
+} = require("../services/dishesDataService");
 const dishRouter = express.Router();
-const dishesDataService = require("../services/dishesDataService");
 // The above syntax will declare the dishRouter as an express-router.
 dishRouter.use(bodyParser.json());
 
@@ -16,7 +20,8 @@ dishRouter
     next();
   })
   .get("/", (req, res) => {
-    const dishes = dishesDataService.dishesData();
+    console.log(req);
+    const dishes = dishesData();
     dishes
       .then((dishes) => {
         res.setHeader("Content-Type", "application/json");
@@ -27,7 +32,7 @@ dishRouter
       });
   })
   .post("/", (req, res) => {
-    const dish = dishesDataService.createDishes();
+    const dish = createDishes();
     dish
       .then((dish) => {
         res.setHeader("Content-Type", "application/json");
@@ -38,14 +43,14 @@ dishRouter
   .put("/", (req, res) => {
     res.status(403).send("PUT operation not supported on /dishes");
   })
-  .delete("/", (req, res, next) => {
-    const response = dishesDataService.deleteDishes();
-    response
-      .then((response) => {
-        res.setHeader("Content-Type", "application/json");
-        res.status(200).send(response);
-      })
-      .catch((err) => res.status(422).send(err));
+  .delete("/", async (req, res, next) => {
+    try {
+      const response = await deleteDishes();
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).send(response);
+    } catch (err) {
+      res.status(422).send(err);
+    }
   });
 
 dishRouter

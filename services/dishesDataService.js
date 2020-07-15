@@ -1,41 +1,37 @@
-const Dishes = require("../models/dishes");
+const express = require("express");
 const bodyParser = require("body-parser");
-const { resolve } = require("bluebird");
-dishRouter.use(bodyParser.json());
+const Dishes = require("../models/dishes");
 
-module.exports.dishesData = () => {
-  return new Promise((resolve, reject) => {
-    Dishes.find({})
-      .then((dishes) => {
-        // console.log(dishes);
-        resolve(dishes);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-};
+module.exports = {
+  dishesData: function () {
+    return new Promise((resolve, reject) => {
+      Dishes.find({})
+        .then((dishes) => {
+          // console.log(dishes);
+          resolve(dishes);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  createDishes: function () {
+    return new Promise((resolve, reject) => {
+      Dishes.create(req.body)
+        .then((dish) => {
+          resolve(dish);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
 
-module.exports.createDishes = () => {
-  return new Promise((resolve, reject) => {
-    Dishes.create(req.body)
-      .then((dish) => {
-        resolve(dish);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-};
-
-module.exports.deleteDishes = () => {
-  return new Promise((resolve, reject) => {
-    Dishes.remove({})
-      .then((response) => {
-        resolve(response);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
+  deleteDishes: async function () {
+    try {
+      return await Dishes.remove({});
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };
