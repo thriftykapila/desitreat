@@ -1,37 +1,21 @@
-const auth = (req, res, next) => {
-  if (!req.signedCookies.user) {
-    var authHeader = req.headers.authorization;
-    if (!authHeader) {
-      var err = new Error("You are not authenticated!");
-      res.setHeader("WWW-Authenticate", "Basic");
-      err.status = 401;
-      next(err);
-      return;
-    }
-    var auth = new Buffer.from(authHeader.split(" ")[1], "base64")
-      .toString()
-      .split(":");
-    var user = auth[0];
-    var pass = auth[1];
-    console.log("Username :", user, "and Password :", pass);
-    if (user == "admin" && pass == "password") {
-      res.cookie("user", "admin", { signed: true });
-      next(); // authorized
-    } else {
-      var err = new Error("You are not authenticated!");
-      res.setHeader("WWW-Authenticate", "Basic");
-      err.status = 401;
-      next(err);
-    }
+function auth(req, res, next) {
+  console.log(req.session);
+
+  if (!req.session.user) {
+    const err = new Error("You are not authenticated here!");
+    err.status = 403;
+    return next(err);
   } else {
-    if (req.signedCookies.user === "admin") {
+    if (req.session.user === "authenticated") {
       next();
     } else {
-      var err = new Error("You are not authenticated!");
-      err.status = 401;
-      next(err);
+      const err = new Error(
+        "Authenticated Error : user stored in session is different"
+      );
+      err.status = 403;
+      return next(err);
     }
   }
-};
+}
 
 module.exports = auth;

@@ -19,7 +19,7 @@ dishRouter
     res.setHeader("Content-Type", "text/plain");
     next();
   })
-  .get((req, res) => {
+  .get((req, res, next) => {
     console.log(req);
     const dishes = dishesData();
     dishes
@@ -28,7 +28,7 @@ dishRouter
         res.status(200).send(dishes);
       })
       .catch((err) => {
-        res.status(422).send(err);
+        (err) => next(err);
       });
   })
   .post((req, res) => {
