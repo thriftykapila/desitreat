@@ -1,11 +1,11 @@
 const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const Dishes = require("./models/dishes");
-dotenv.config();
 var session = require("express-session");
 var FileStore = require("session-file-store")(session);
 const url = process.env.URL;
@@ -14,12 +14,24 @@ const hostname = process.env.HOSTNAME;
 const app = express();
 const port = process.env.PORT;
 const secretKey = process.env.SECRET_KEY;
-const auth = require("./authentication/authenticate");
+// const auth = require("./authentication/auth");
 const userRouter = require("./Routes/userRouter");
 const leaderRouter = require("./Routes/leaderRouter");
 const dishRouter = require("./Routes/dishRouter");
 const promoRouter = require("./Routes/promoRouter");
 mongoose.Promise = require("bluebird");
+const passport = require("passport");
+const authenticate = require("./authentication/authenticate");
+app.use(morgan("dev"));
+app.use(bodyParser.json());
+
+// const passport = require("passport");
+// const LocalStrategy = require("passport-local").Strategy;
+// const User = require("./models/users");
+
+// passport.use(new LocalStrategy(User.authenticate()));
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
 app.use(
   session({
@@ -31,8 +43,8 @@ app.use(
   })
 );
 
-app.use(morgan("dev"));
-app.use(bodyParser.json());
+app.use(passport.initialize());
+app.use(passport.session());
 
 connect.then(
   (db) => {
@@ -55,7 +67,7 @@ app.use("/indexPage", (req, res, next) => {
 });
 app.use("/users", userRouter);
 
-app.use(auth);
+// app.use(auth);
 
 app.use("/dishes", dishRouter);
 app.use("/promotions", promoRouter);

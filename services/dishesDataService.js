@@ -4,6 +4,7 @@ module.exports = {
   dishesData: function () {
     return new Promise((resolve, reject) => {
       Dishes.find({})
+        .populate("comments.author")
         .then((dishes) => {
           // console.log(dishes);
           resolve(dishes);
