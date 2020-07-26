@@ -11,7 +11,6 @@ var FileStore = require("session-file-store")(session);
 const url = process.env.URL;
 const connect = mongoose.connect(url);
 const hostname = process.env.HOSTNAME;
-const app = express();
 const port = process.env.PORT;
 const secretKey = process.env.SECRET_KEY;
 // const auth = require("./authentication/auth");
@@ -22,8 +21,10 @@ const promoRouter = require("./Routes/promoRouter");
 mongoose.Promise = require("bluebird");
 const passport = require("passport");
 const authenticate = require("./authentication/authenticate");
+const app = express();
 app.use(morgan("dev"));
 app.use(bodyParser.json());
+secPort = parseInt(port) + 443;
 
 // const passport = require("passport");
 // const LocalStrategy = require("passport-local").Strategy;
@@ -32,6 +33,25 @@ app.use(bodyParser.json());
 // passport.use(new LocalStrategy(User.authenticate()));
 // passport.serializeUser(User.serializeUser());
 // passport.deserializeUser(User.deserializeUser());
+// Secure traffic only
+app.all("*", (req, res, next) => {
+  if (req.secure) {
+    return next();
+  } else {
+    res.redirect(
+      307,
+      "https://" + req.hostname + ":" + app.get("secPort") + req.url
+    );
+  }
+});
+connect.then(
+  (db) => {
+    console.log(`Connected correctly to server at port ${secPort}`);
+  },
+  (err) => {
+    console.log(err);
+  }
+);
 
 app.use(
   session({
@@ -46,17 +66,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-connect.then(
-  (db) => {
-    console.log(`Connected correctly to server at port ${port}`);
-  },
-  (err) => {
-    console.log(err);
-  }
-);
-
 // app.use(cookieParser(secretKey));
-
 app.use("/indexPage", (req, res, next) => {
   console.log(req.headers);
   res.statusCode = 200;
@@ -92,9 +102,9 @@ app.use((req, res, next) => {
 
 // For any other url other than dishes, it will route it to here
 
-app.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+// app.listen(port, hostname, () => {
+//   console.log(`Server running at http://${hostname}:${port}/`);
+// });
 
 // const rect = require("./rectangle");
 // function solveRect(l, b) {
@@ -115,3 +125,5 @@ app.listen(port, hostname, () => {
 // }
 
 // // solveRect(3, 4);
+
+module.exports = app;
