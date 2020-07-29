@@ -8,7 +8,7 @@ const storage = multer.diskStorage({
     cb(null, "public/images");
   },
 
-  fileName: (req, file, cb) => {
+  filename: (req, file, cb) => {
     cb(null, file.originalname);
   },
 });
@@ -37,6 +37,7 @@ uploadRouter
     authenticate.verifyAdmin,
     upload.single("imageFile"),
     (req, res) => {
+      //   .post(upload.single("imageFile"), (req, res) => {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
       res.json(req.file);
