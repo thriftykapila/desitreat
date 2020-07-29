@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const authenticate = require("../authentication/authenticate");
+const cors = require("./cors");
 
 const Dishes = require("../models/dishes");
 
@@ -11,8 +12,11 @@ dishRouter.use(bodyParser.json());
 
 dishRouter
   .route("/")
+  .options(cors.corsWithOptions, (req, res) => {
+    res.sendStatus(200);
+  })
   // GET request for /dishes
-  .get((req, res, next) => {
+  .get(cors.cors, (req, res, next) => {
     Dishes.find({})
       .populate("comments.author")
       .then(
@@ -26,26 +30,37 @@ dishRouter
       .catch((err) => next(err));
   })
   // POST request for /dishes
-  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    Dishes.create(req.body)
-      .then(
-        (dish) => {
-          console.log("Dish Created ", dish);
-          res.statusCode = 200;
-          res.setHeader("Content-Type", "application/json");
-          res.json(dish);
-        },
-        (err) => next(err)
-      )
-      .catch((err) => next(err));
-  })
+  .post(
+    cors.corsWithOptions,
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      Dishes.create(req.body)
+        .then(
+          (dish) => {
+            console.log("Dish Created ", dish);
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.json(dish);
+          },
+          (err) => next(err)
+        )
+        .catch((err) => next(err));
+    }
+  )
   // PUT request for /dishes
-  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    res.statusCode = 403;
-    res.end("PUT operation not supported on /dishes");
-  })
+  .put(
+    cors.corsWithOptions,
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      res.statusCode = 403;
+      res.end("PUT operation not supported on /dishes");
+    }
+  )
   // DELETE request for /dishes
   .delete(
+    cors.corsWithOptions,
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
@@ -65,7 +80,10 @@ dishRouter
 dishRouter
   .route("/:dishId")
   // GET request for /dishes/:dishId
-  .get((req, res, next) => {
+  .options(cors.corsWithOptions, (req, res) => {
+    res.sendStatus(200);
+  })
+  .get(cors.cors, (req, res, next) => {
     Dishes.findById(req.params.dishId)
       .populate("comments.author")
       .then(
@@ -79,10 +97,15 @@ dishRouter
       .catch((err) => next(err));
   })
   // POST request for /dishes/:dishId
-  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    res.statusCode = 403;
-    res.end("POST operation not supported on /dishes/" + req.params.dishId);
-  })
+  .post(
+    cors.corsWithOptions,
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      res.statusCode = 403;
+      res.end("POST operation not supported on /dishes/" + req.params.dishId);
+    }
+  )
   // PUT request for /dishes/:dishId
   .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Dishes.findByIdAndUpdate(
@@ -104,6 +127,7 @@ dishRouter
   })
   // DELETE request for /dishes/:dishId
   .delete(
+    cors.corsWithOptions,
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
@@ -125,7 +149,10 @@ dishRouter
 dishRouter
   .route("/:dishId/comments")
   // GET request for /:dishId/comments
-  .get((req, res, next) => {
+  .options(cors.corsWithOptions, (req, res) => {
+    res.sendStatus(200);
+  })
+  .get(cors.cors, (req, res, next) => {
     Dishes.findById(req.params.dishId)
       .populate("comments.author")
       .then(
@@ -145,7 +172,7 @@ dishRouter
       .catch((err) => next(err));
   })
   // POST request for /:dishId/comments
-  .post(authenticate.verifyUser, (req, res, next) => {
+  .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishId)
       .then(
         (dish) => {
@@ -171,12 +198,13 @@ dishRouter
       .catch((err) => next(err));
   })
   // PUT request for /:dishId/comments
-  .put(authenticate.verifyUser, (req, res, next) => {
+  .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end("PUT operation not supported on /dishes/" + req.params.dishId);
   })
   // DELETE request for /:dishId/comments
   .delete(
+    cors.corsWithOptions,
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
@@ -210,7 +238,10 @@ dishRouter
 dishRouter
   .route("/:dishId/comments/:commentId")
   // GET request for /:dishId/comments/:commentId
-  .get((req, res, next) => {
+  .options(cors.corsWithOptions, (req, res) => {
+    res.sendStatus(200);
+  })
+  .get(cors.cors, (req, res, next) => {
     Dishes.findById(req.params.dishId)
       .populate("comments.author")
       .then(
@@ -234,14 +265,14 @@ dishRouter
       .catch((err) => next(err));
   })
   // POST request for /:dishId/comments/:commentId
-  .post(authenticate.verifyUser, (req, res, next) => {
+  .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end(
       "POST operation not supported on /comments/" + req.params.commentId
     );
   })
   // PUT request for /:dishId/comments/:commentId
-  .put(authenticate.verifyUser, (req, res, next) => {
+  .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishId)
       .then(
         (dish) => {
@@ -284,7 +315,7 @@ dishRouter
       .catch((err) => next(err));
   })
   // DELETE request for /:dishId/comments/:commentId
-  .delete(authenticate.verifyUser, (req, res, next) => {
+  .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishId)
       .then(
         (dish) => {
