@@ -18,6 +18,7 @@ const userRouter = require("./Routes/userRouter");
 const leaderRouter = require("./Routes/leaderRouter");
 const dishRouter = require("./Routes/dishRouter");
 const promoRouter = require("./Routes/promoRouter");
+const uploadRouter = require("./Routes/uploadRouter");
 mongoose.Promise = require("bluebird");
 const passport = require("passport");
 const authenticate = require("./authentication/authenticate");
@@ -82,6 +83,7 @@ app.use("/users", userRouter);
 app.use("/dishes", dishRouter);
 app.use("/promotions", promoRouter);
 app.use("/leaders", leaderRouter);
+app.use("/imageUpload", uploadRouter);
 
 app.use((err, req, res, next) => {
   res
