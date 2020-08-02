@@ -93,6 +93,9 @@ app.use((err, req, res, next) => {
     );
 });
 
+app.get("/index", function (req, res) {
+  res.sendFile("index.html", { root: __dirname + "/public" });
+});
 app.use((req, res, next) => {
   console.log(req.headers);
   res.statusCode = 200;
